@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="footer_bg">
+    <!-- <p class="footer_bg">Testing something</p> -->
+    <!-- <img src="{% static 'images/img-1.webp' %}" alt=""> -->
+
+  {% for item in name %}
+    {% if not item == 'HTML' %}
+        <p>{{item}}</p>
+      
+    {% endif %}
+    
+  {% endfor %}
+</body>
+</html>
+
+
+
