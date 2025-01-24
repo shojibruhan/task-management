@@ -16,10 +16,16 @@
     <div class="grid grid-cols-4 p-4 border border-b border-gray-100">
     {% for task in tasks %}
       <div class="flex items-center gap-3">
-        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+        <div class="w-2 h-2 bg-rose-500 rounded-full"></div>
         <div class='flex p-2 px-2'> 
           <div class="w-40">{{ task.title |slice:20 }}</div> 
-          <div class="bg-lime-300 px-3 py-1 rounded-ful text-sm">{{ task.status }}</div> 
+          <div class="flex gap-2">
+            <a href="{% url 'update-task'  task.id %}" class="px-2 py-1 bg-lime-500 rounded-full">Edit</a>
+            <form action= "{% url 'delete-task'  task.id %}" method="POST">
+              {% csrf_token %}
+              <button type='submit' class="px-2 py-1 bg-red-500 rounded-full">Delete</button>
+            </form>
+          </div>
         </div>
       </div>
       <div>

@@ -18,7 +18,6 @@
             {% endif %}
         </div>
         <form method="POST">
-            <input type="text" class="border-2 border-gray-300 w-full rounded-lg shadow-sm focus:border-rose-500 focus:ring-rose-500 p-2" placeholder="Enter Something">
             {% csrf_token %}
             <!-- {{ form.as_p }} -->
               <div class="border-gray-600 "> {{ task_form }} </div>
