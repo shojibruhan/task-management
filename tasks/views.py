@@ -162,3 +162,43 @@ def delete_task(request, id):
         return redirect('manager-dashboard')
 
 
+def testing(request):
+    # tasks= Task.objects.prefetch_related("assigned_to").all()
+    # tasks= Task.objects.prefetch_related("assigned_to").get(id=1)
+    employee= Employee.objects.get(id=1)
+    tasks= TaskDetail.objects.exclude(priority= 'LOW')
+    context={
+        "tasks": tasks,
+        "employee": employee
+    }
+    return render(request, "test.html", context)
+
+
+ # tasks= TaskDetail.objects.exclude(priority= 'L')
+    # tasks= Task.objects.filter(due_date= date.today())
+    # tasks= Task.objects.filter(title__icontains= 'c', status= 'PENDING')
+    # tasks= Task.objects.filter(Q(status= 'PENDING') | Q(status= 'IN_PROGRESS'))
+    # tasks= Task.objects.all()
+
+    # ||||--------  select_related(foreign_key, OneToOneField)  --------|||||
+
+    # tasks= Task.objects.select_related('details').all()
+    # tasks= Task.objects.select_related('project').all()
+    # tasks= TaskDetail.objects.select_related('task').all()
+
+
+    # ||||--------  prefetch_related(reverse_foreign_key, ManyToMany)  --------|||||
+
+    # tasks= Task.objects.prefetch_related('task_set').all()
+    # tasks= Project.objects.prefetch_related('task_set').all()
+    # tasks= Task.objects.prefetch_related('assigned_to').all()
+
+        
+    # Aggregation
+
+    # task_count= Task.objects.aggregate(total= Count('id'))
+
+    # Annotate
+
+    # projects= Project.objects.annotate(total_task= Count("task")).order_by('total_task')
+    

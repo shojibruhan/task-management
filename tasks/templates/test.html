@@ -8,16 +8,19 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body class="footer_bg">
-    <!-- <p class="footer_bg">Testing something</p> -->
-    <!-- <img src="{% static 'images/img-1.webp' %}" alt=""> -->
-
-  {% for item in name %}
-    {% if not item == 'HTML' %}
-        <p>{{item}}</p>
-      
-    {% endif %}
     
-  {% endfor %}
+  {% comment %} {{ tasks }} {% endcomment %}
+  {% comment %} {% for item in tasks.tasks %}
+    {{ item }}
+  {% endfor %} {% endcomment %}
+
+  {% comment %} {{employee.name}} {% endcomment %}
+   {% for task in tasks %}
+    <p>{{task.task}}</p>
+    <p>{{task.priority}}</p>
+   {% endfor %}
+
+ 
 </body>
 </html>
 
