@@ -9,16 +9,49 @@
 </head>
 <body class="footer_bg">
     
-  {% comment %} {{ tasks }} {% endcomment %}
-  {% comment %} {% for item in tasks.tasks %}
-    {{ item }}
-  {% endfor %} {% endcomment %}
 
-  {% comment %} {{employee.name}} {% endcomment %}
-   {% for task in tasks %}
-    <p>{{task.task}}</p>
-    <p>{{task.priority}}</p>
-   {% endfor %}
+
+{% comment %} <div>
+  {% for project in projects %}
+    {{project.name}}
+    {% for task in project.task_set.all %} 
+    
+          <li>{{task.title}}</li>
+            {% for emp in task.assigned_to.all %}
+              <ol>{{emp}}</ol>
+            {% endfor %}
+
+ 
+    {% endfor %}
+  {% endfor %}
+
+</div>  {% endcomment %}
+ <div>
+
+    {% for project in projects %}
+      {{project}}
+    {% endfor %}
+
+
+
+</div> 
+{% comment %} 
+<div>
+  {% for emp in employee %}
+    <p> {{emp.name}} {{ emp.id }} </p>
+    <p> {{emp.total_task}} </p>
+  {% endfor %}
+
+</div> {% endcomment %}
+
+
+
+ {% comment %} {% for task in tasks %}
+  <p> {{task}} </p>
+{% endfor %}  {% endcomment %}
+
+
+
 
  
 </body>

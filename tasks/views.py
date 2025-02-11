@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from tasks.forms import TaskForm, TaskModelForm, TaskDetailModelForm
 from tasks.models import Employee, Task, TaskDetail, Project
-from datetime import date
+from datetime import date, timedelta
 from django.db.models import Q, Count, Max, Min, Sum, Avg
 from django.contrib import messages
 
@@ -165,11 +165,36 @@ def delete_task(request, id):
 def testing(request):
     # tasks= Task.objects.prefetch_related("assigned_to").all()
     # tasks= Task.objects.prefetch_related("assigned_to").get(id=1)
-    employee= Employee.objects.get(id=1)
-    tasks= TaskDetail.objects.exclude(priority= 'LOW')
+    # employee= Employee.objects.get(id=1)
+    # tasks= TaskDetail.objects.exclude(priority= 'LOW')
+    # tasks= Task.objects.filter(Q(status= 'COMPLETED') | Q(status= 'IN_PROGRESS'))
+    # tasks= Task.objects.select_related('details').all()
+    # tasks= Task.objects.select_related('project').all()
+    # tasks= TaskDetail.objects.select_related('task').all()
+
+
+    # tasks= Task.objects.prefetch_related("assigned_to").filter(id=1)
+    projects= Project.objects.prefetch_related("task_set").filter(id=1)
+    # employee= Employee.objects.prefetch_related("assigned_to").filter(id=1)
+    # employee= Employee.objects.prefetch_related('tasks').filter(id=1)
+    # employee= Employee.objects.annotate(total= Count('tasks'))
+    employee= Employee.objects.prefetch_related('tasks').annotate(total_task= Count('tasks'))
+    # tasks= Task.objects.aggregate(total= Count('id'))
+    
+    td= date.today()
+    due= td - timedelta(days=7)
+    # due= Task.objects.filter(dif, COMPLETED= False)
+    # tasks= Task.objects.order_by('created_at').first()
+    # projects= Project.objects.filter(task__isnull= True)
+    # projects= Project.objects.annotate(total_task= Count("task"))
+    tasks= Task.objects.filter(due_date__lt= due, is_completed= False)
+    # projects= Project.objects.filter(name= "Strategize vertical portals")
     context={
+        'due':due,
         "tasks": tasks,
-        "employee": employee
+        "employee": employee,
+        'projects': projects,
+        
     }
     return render(request, "test.html", context)
 
