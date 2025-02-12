@@ -641,6 +641,10 @@ video {
   margin-bottom: 2.5rem;
 }
 
+.mb-20 {
+  margin-bottom: 5rem;
+}
+
 .mb-4 {
   margin-bottom: 1rem;
 }
@@ -655,6 +659,10 @@ video {
 
 .mt-4 {
   margin-top: 1rem;
+}
+
+.ml-64 {
+  margin-left: 16rem;
 }
 
 .block {
@@ -794,6 +802,11 @@ video {
 
 .border-b {
   border-bottom-width: 1px;
+}
+
+.border-blue-700 {
+  --tw-border-opacity: 1;
+  border-color: rgb(29 78 216 / var(--tw-border-opacity, 1));
 }
 
 .border-gray-100 {
@@ -965,9 +978,18 @@ video {
   line-height: 2.25rem;
 }
 
+.text-5xl {
+  font-size: 3rem;
+  line-height: 1;
+}
+
 .text-sm {
   font-size: 0.875rem;
   line-height: 1.25rem;
+}
+
+.font-bold {
+  font-weight: 700;
 }
 
 .font-medium {
