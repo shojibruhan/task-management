@@ -1,4 +1,7 @@
 from django.db import models
+from django.db.models.signals import post_save, pre_save, m2m_changed, post_delete
+from django.dispatch import receiver
+from django.core.mail import send_mail
 
 # Create your models here.
 
@@ -47,7 +50,7 @@ class TaskDetail(models.Model):
     )
     task= models.OneToOneField(
         Task, 
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         related_name='details')
     # assigned_to= models.CharField(max_length=100)
     priority= models.CharField(max_length=6, choices=PRIORITY_OPTIONS, default=LOW)
@@ -64,3 +67,4 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+

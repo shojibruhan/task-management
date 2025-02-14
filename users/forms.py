@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from tasks.forms import StyleFormMixin
 
@@ -22,11 +22,13 @@ class CustomRegisterForm(StyleFormMixin, forms.ModelForm):
         fields= ['username', 'first_name', 'last_name', 'email', 'password1', 'confirmed_password']
 
     def clean_email(self):
-         email= self.cleaned_data.get('email')
-         email_exist= User.objects.filter(email=email).exists()
+        email= self.cleaned_data.get('email')
+        email_exist= User.objects.filter(email=email).exists()
+        print(email)
 
-         if email_exist:
-             raise forms.ValidationError("Email already exists")
+        if email_exist:
+            raise forms.ValidationError("Email already exists")
+        return email
     
 
     def clean_password1(self):  # field error: independent fields
@@ -55,7 +57,9 @@ class CustomRegisterForm(StyleFormMixin, forms.ModelForm):
         
         return cleaned_data
 
-
+class LogInForm(StyleFormMixin, AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         
         
     

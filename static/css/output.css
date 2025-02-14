@@ -653,16 +653,16 @@ video {
   margin-bottom: 1.25rem;
 }
 
+.ml-64 {
+  margin-left: 16rem;
+}
+
 .mt-10 {
   margin-top: 2.5rem;
 }
 
 .mt-4 {
   margin-top: 1rem;
-}
-
-.ml-64 {
-  margin-left: 16rem;
 }
 
 .block {
@@ -782,6 +782,10 @@ video {
 
 .rounded-full {
   border-radius: 9999px;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
 }
 
 .rounded-md {
@@ -976,11 +980,6 @@ video {
 .text-3xl {
   font-size: 1.875rem;
   line-height: 2.25rem;
-}
-
-.text-5xl {
-  font-size: 3rem;
-  line-height: 1;
 }
 
 .text-sm {
