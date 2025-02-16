@@ -5,10 +5,19 @@ from tasks.models import Employee, Task, TaskDetail, Project
 from datetime import date, timedelta
 from django.db.models import Q, Count, Max, Min, Sum, Avg
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 
+
+def is_manager(user):
+    return user.groups.filter(name= 'Manager').exists()
+
+
+def is_employee(user):
+    return user.groups.filter(name= 'Employee').exists()
+
+
+@user_passes_test(is_manager, login_url='no-permission')
 def manager_dashboard(request):
-    
-    
     
     # Getting task count
     # total_task= tasks.count()
@@ -41,12 +50,13 @@ def manager_dashboard(request):
     }
     return render(request, "dashboard/manager-dashboard.html", context)
 
-
-def user_dashboard(request):
+@user_passes_test(is_employee)
+def employee_dashboard(request):
     return render(request, "dashboard/user-dashboard.html")
 
 
-
+@login_required
+@permission_required("tasks.add_task", login_url='no-permission')
 def create_task(request):
     employee= Employee.objects.all( )
     task_form= TaskModelForm() # for 'GET'
@@ -90,7 +100,8 @@ def create_task(request):
     return render(request, "task_form.html", context)
 
 
-
+@login_required
+@permission_required("tasks.change_task", login_url='no-permission')
 def update_task(request, id):
     task= Task.objects.get(id= id) 
     employee= Employee.objects.all()
@@ -120,6 +131,9 @@ def update_task(request, id):
     context= {"task_form": task_form, "task_detail_form": task_detail_form}
     return render(request, "task_form.html", context)
 
+
+@login_required
+@permission_required("tasks.view_task", login_url='no-permission')
 def view_task(request):
     # tasks= TaskDetail.objects.exclude(priority= 'L')
     # tasks= Task.objects.filter(due_date= date.today())
@@ -151,6 +165,8 @@ def view_task(request):
     
     return render(request, "show_task.html", {"projects": projects})
 
+@login_required
+@permission_required("tasks.delete_task", login_url='no-permission')
 def delete_task(request, id):
     if request.method == 'POST':
         task= Task.objects.get(id= id)
@@ -162,68 +178,3 @@ def delete_task(request, id):
         return redirect('manager-dashboard')
 
 
-def testing(request):
-    # tasks= Task.objects.prefetch_related("assigned_to").all()
-    # tasks= Task.objects.prefetch_related("assigned_to").get(id=1)
-    # employee= Employee.objects.get(id=1)
-    # tasks= TaskDetail.objects.exclude(priority= 'LOW')
-    # tasks= Task.objects.filter(Q(status= 'COMPLETED') | Q(status= 'IN_PROGRESS'))
-    # tasks= Task.objects.select_related('details').all()
-    # tasks= Task.objects.select_related('project').all()
-    # tasks= TaskDetail.objects.select_related('task').all()
-
-
-    # tasks= Task.objects.prefetch_related("assigned_to").filter(id=1)
-    projects= Project.objects.prefetch_related("task_set").filter(id=1)
-    # employee= Employee.objects.prefetch_related("assigned_to").filter(id=1)
-    # employee= Employee.objects.prefetch_related('tasks').filter(id=1)
-    # employee= Employee.objects.annotate(total= Count('tasks'))
-    employee= Employee.objects.prefetch_related('tasks').annotate(total_task= Count('tasks'))
-    # tasks= Task.objects.aggregate(total= Count('id'))
-    
-    td= date.today()
-    due= td - timedelta(days=7)
-    # due= Task.objects.filter(dif, COMPLETED= False)
-    # tasks= Task.objects.order_by('created_at').first()
-    # projects= Project.objects.filter(task__isnull= True)
-    # projects= Project.objects.annotate(total_task= Count("task"))
-    tasks= Task.objects.filter(due_date__lt= due, is_completed= False)
-    # projects= Project.objects.filter(name= "Strategize vertical portals")
-    context={
-        'due':due,
-        "tasks": tasks,
-        "employee": employee,
-        'projects': projects,
-        
-    }
-    return render(request, "test.html", context)
-
-
- # tasks= TaskDetail.objects.exclude(priority= 'L')
-    # tasks= Task.objects.filter(due_date= date.today())
-    # tasks= Task.objects.filter(title__icontains= 'c', status= 'PENDING')
-    # tasks= Task.objects.filter(Q(status= 'PENDING') | Q(status= 'IN_PROGRESS'))
-    # tasks= Task.objects.all()
-
-    # ||||--------  select_related(foreign_key, OneToOneField)  --------|||||
-
-    # tasks= Task.objects.select_related('details').all()
-    # tasks= Task.objects.select_related('project').all()
-    # tasks= TaskDetail.objects.select_related('task').all()
-
-
-    # ||||--------  prefetch_related(reverse_foreign_key, ManyToMany)  --------|||||
-
-    # tasks= Task.objects.prefetch_related('task_set').all()
-    # tasks= Project.objects.prefetch_related('task_set').all()
-    # tasks= Task.objects.prefetch_related('assigned_to').all()
-
-        
-    # Aggregation
-
-    # task_count= Task.objects.aggregate(total= Count('id'))
-
-    # Annotate
-
-    # projects= Project.objects.annotate(total_task= Count("task")).order_by('total_task')
-    
