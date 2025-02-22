@@ -22,11 +22,7 @@
               <div class='flex p-2 px-2'> 
                 <div class="w-40">{{ task.title |slice:20 }}</div> 
                 <div class="flex gap-2">
-                  {% comment %} <a href="{% url 'update-task'  task.id %}" class="px-2 py-1 bg-lime-500 rounded-full">Edit</a>
-                  <form action= "{% url 'delete-task'  task.id %}" method="POST">
-                    {% csrf_token %}
-                    <button type='submit' class="px-2 py-1 bg-red-500 rounded-full">Delete</button>
-                  </form> {% endcomment %}
+                  
                 </div>
               </div>
             </div>
@@ -36,7 +32,7 @@
             <div class="flex -space-x-2 ">
               
               {% for emp in task.assigned_to.all %}
-              <div class="w-8 h-8 bg-blue-500 rounded-full flex justify-center items-center text-sm text-white  border-2 border-white">{{emp.name | slice:':2'}}</div>
+              <div class="w-8 h-8 bg-blue-500 rounded-full flex justify-center items-center text-sm text-white  border-2 border-white">{{emp.first_name | slice:':2'}}</div>
               {% endfor %}
             </div>
             <div>

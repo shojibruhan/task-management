@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from tasks.forms import TaskForm, TaskModelForm, TaskDetailModelForm
-from tasks.models import Employee, Task, TaskDetail, Project
+from tasks.models import Task, TaskDetail, Project
 from datetime import date, timedelta
 from django.db.models import Q, Count, Max, Min, Sum, Avg
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
+from django.contrib.auth.models import User
+from users.views import is_admin
 
 
 def is_manager(user):
@@ -58,14 +60,14 @@ def employee_dashboard(request):
 @login_required
 @permission_required("tasks.add_task", login_url='no-permission')
 def create_task(request):
-    employee= Employee.objects.all( )
+    employee= User.objects.all( )
     task_form= TaskModelForm() # for 'GET'
     task_detail_form= TaskDetailModelForm()
 
     
     if request.method== "POST":
         task_form= TaskModelForm(request.POST)
-        task_detail_form= TaskDetailModelForm(request.POST)
+        task_detail_form= TaskDetailModelForm(request.POST, request.FILES)
         
         if task_form.is_valid() and task_detail_form.is_valid():
 
@@ -77,7 +79,7 @@ def create_task(request):
             task_detail.save()
 
             messages.success(request, "Task added Successfully")
-            return redirect("task-form")
+            return redirect("create-task")
             
             '''   For Django Form Data   '''
             # data= form.cleaned_data
@@ -104,7 +106,7 @@ def create_task(request):
 @permission_required("tasks.change_task", login_url='no-permission')
 def update_task(request, id):
     task= Task.objects.get(id= id) 
-    employee= Employee.objects.all()
+    employee= User.objects.all()
     task_form= TaskModelForm(instance= task) # for 'GET'
     if task.details:
         task_detail_form= TaskDetailModelForm(instance= task.details)
@@ -182,5 +184,29 @@ def delete_task(request, id):
 @permission_required("tasks.view_task", login_url='no-permission')
 def task_details(request, task_id):
     task= Task.objects.get(id= task_id)
+    status_choices= Task.STATUS_CHOICES
+    if request.method == "POST":
+        select_status= request.POST.get('task_status')
+        task.status= select_status
+        task.save()
 
-    return render(request, 'task_details.html', {"task": task})
+        return redirect("task-details", task_id)
+
+    
+    context= {
+        "task": task,
+        "status_choices": status_choices
+    }
+
+    return render(request, 'task_details.html', context)
+
+@login_required
+def dashboard(request):
+    if is_manager(request.user):
+        return redirect('manager-dashboard')
+    elif is_employee(request.user):
+        return redirect('user-dashboard')
+    elif is_admin(request.user):
+        return redirect('admin-dashboard')
+    
+    return redirect('no-permission')

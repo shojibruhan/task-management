@@ -64,7 +64,7 @@ class StyleFormMixin:
 class TaskModelForm(StyleFormMixin, forms.ModelForm):
     class  Meta:
         model= Task
-        fields= ['title', 'description', 'due_date', 'assigned_to']
+        fields= ['title', 'description', 'due_date', 'assigned_to']  
         # exclude= ['project', 'is_completed', 'created_at','updated_at']
         widgets= {
             'due_date': forms.SelectDateWidget,
@@ -109,6 +109,6 @@ class TaskModelForm(StyleFormMixin, forms.ModelForm):
 class TaskDetailModelForm(StyleFormMixin, forms.ModelForm):
     class Meta:
         model= TaskDetail
-        fields= ['priority', 'notes']
+        fields= ['priority', 'notes', 'asset']
 
     

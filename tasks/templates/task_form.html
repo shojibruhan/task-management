@@ -1,14 +1,5 @@
-{% load static %}
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="{% static 'css/output.css' %}">
-</head>
-<body>
+{% extends "base.html" %}
+{% block content %}
     <div class="w-1/2 mx-auto mt-10">
         <div>
             {% if messages %}
@@ -17,7 +8,7 @@
               {% endfor %}
             {% endif %}
         </div>
-        <form method="POST">
+        <form method="POST", enctype= 'multipart/form-data'>
             {% csrf_token %}
             <!-- {{ form.as_p }} -->
               <div class="border-gray-600 "> {{ task_form }} </div>
@@ -29,5 +20,4 @@
             <button  class="bg-purple-600 hover:bg-purple-800 px-2 py-2 text-white rounded-md mt-4 shadow-2xl mb-10" type="submit">Submit</button>
         </form>
     </div>
-</body>
-</html>
+{% endblock content %}

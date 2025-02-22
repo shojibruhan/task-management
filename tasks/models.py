@@ -2,15 +2,9 @@ from django.db import models
 from django.db.models.signals import post_save, pre_save, m2m_changed, post_delete
 from django.dispatch import receiver
 from django.core.mail import send_mail
+from django.contrib.auth.models import User
 
-# Create your models here.
 
-class Employee(models.Model):
-    name= models.CharField(max_length=100)
-    email= models.EmailField(unique=True)
-
-    def __str__(self):
-        return self.name
 
 class Task(models.Model):
     STATUS_CHOICES= [
@@ -23,7 +17,7 @@ class Task(models.Model):
         on_delete=models.CASCADE,
         default=1)
     assigned_to= models.ManyToManyField(
-        Employee,
+        User,
         related_name='tasks')
     title= models.CharField(max_length=250)
     description= models.TextField()
@@ -53,6 +47,7 @@ class TaskDetail(models.Model):
         on_delete=models.DO_NOTHING,
         related_name='details')
     # assigned_to= models.CharField(max_length=100)
+    asset= models.ImageField(upload_to='tasks_asset', blank=True, null= True, default="tasks_asset/default.jpg")
     priority= models.CharField(max_length=6, choices=PRIORITY_OPTIONS, default=LOW)
     notes= models.TextField(blank=True, null= True)
 
