@@ -178,3 +178,9 @@ def delete_task(request, id):
         return redirect('manager-dashboard')
 
 
+@login_required
+@permission_required("tasks.view_task", login_url='no-permission')
+def task_details(request, task_id):
+    task= Task.objects.get(id= task_id)
+
+    return render(request, 'task_details.html', {"task": task})
