@@ -10,7 +10,7 @@
             class="text-gray-600 hover:text-gray-800"
             >Dashboard</a
           >
-          <a href="#" class="text-gray-600 hover:text-gray-800">Tasks</a>
+          <a href="{% url "view-task" %}" class="text-gray-600 hover:text-gray-800">Tasks</a>
           <a href="{% url "group-list" %}" class="text-gray-600 hover:text-gray-800"
             >Tasks</a
           >
@@ -24,20 +24,22 @@
           <div class="relative">
             <button
               id="user-menu-button"
-              class="flex items-center focus:outline-none"
+              class="flex items-center focus:outline-none border-2 w-8 h-8 p-2 rounded-full border-blue-900 font-bold"
             >
-              <img
+              {% comment %} <img
                 class="h-8 w-8 rounded-full object-cover"
                 src="https://placekitten.com/100/100"
+                 
                 alt="User avatar"
-              />
+              /> {% endcomment %}
+              {{request.user.username.upper|slice:"1"}}
             </button>
             <div
               id="user-menu"
               class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden"
             >
               <a
-                href="{% url "adimin-dashboard" %}"
+                href="{% url "dashboard" %}"
                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >Dashboard</a
               >
