@@ -21,6 +21,6 @@ def notify_employees_on_task_creation(sender, instance, action, **kwargs):
 @receiver(post_delete, sender=Task)
 def delete_associate_details(sender, instance, **kwargs):
     if instance.details:
-        print(instance)
+        # print(instance)
         instance.details.delete()
-        print("Delete Successfully!!!")
+        # print("Delete Successfully!!!")

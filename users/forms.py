@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User, Group, Permission
 from tasks.forms import StyleFormMixin
 
@@ -24,7 +24,7 @@ class CustomRegisterForm(StyleFormMixin, forms.ModelForm):
     def clean_email(self):
         email= self.cleaned_data.get('email')
         email_exist= User.objects.filter(email=email).exists()
-        print(email)
+        # print(email)
 
         if email_exist:
             raise forms.ValidationError("Email already exists")
@@ -84,3 +84,11 @@ class CreateGroupForm(StyleFormMixin, forms.ModelForm):
 
 
 
+class CustomPasswordChangeForm(StyleFormMixin, PasswordChangeForm):
+    pass
+
+class CustomPasswordResetForm(StyleFormMixin, PasswordResetForm):
+    pass
+
+class CustomPasswordResetConfirmForm(StyleFormMixin, SetPasswordForm):
+    pass

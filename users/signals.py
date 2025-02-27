@@ -18,8 +18,8 @@ def send_activation_email(sender, instance, created, **kwargs):
         
         try:
             send_mail(subject, message, "si.ruhan09@gmail.com", recipient_list)
-            print("sending emails")
-            print(recipient_list)
+            # print("sending emails")
+            # print(recipient_list)
         except Exception as e:
             print(f"Failed to send mail to {instance.email}: {str(e)}")
 

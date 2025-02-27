@@ -11,7 +11,7 @@ class TaskForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         employees= kwargs.pop("employees", [])
-        print(employees)
+        # print(employees)
         super().__init__(*args, **kwargs)
         # print(self.fields)
         self.fields['assigned_to'].choices= [(emp.id, emp.name) for emp in employees]

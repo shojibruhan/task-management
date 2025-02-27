@@ -330,4 +330,4 @@ def dashboard(request):
     elif is_admin(request.user):
         return redirect('admin-dashboard')
     
-    return redirect('no-permission')
+    return redirect('sign-in')
