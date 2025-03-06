@@ -5,48 +5,25 @@ from django.contrib.auth import login, logout
 from users.forms import CustomRegisterForm, LogInForm, AssigneRoleForm, CreateGroupForm, CustomPasswordChangeForm, CustomPasswordResetForm, CustomPasswordResetConfirmForm, EditProfileForm
 from django.contrib import messages
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.db.models import Prefetch
 from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordChangeDoneView, PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
-from django.views.generic import TemplateView, UpdateView
+from django.views.generic import TemplateView, UpdateView, ListView, FormView
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.views.generic.base import ContextMixin
 from django.contrib.auth import get_user_model
+from django.views import View
+from django.utils.decorators import method_decorator
+
+
 User= get_user_model()
 
 
-# Test for user
+
 
 def is_admin(user):
     return user.groups.filter(name= "Admin").exists()
-# def sign_up(request):
-#     form= CustomRegisterForm(request.POST or None)
-    
-#     if request.method == "POST":
-
-        
-
-#         if form.is_valid():
-#             # username= form.cleaned_data.get("username")
-#             # password= form.cleaned_data.get('password1')
-#             # confirmed_password= form.cleaned_data.get('password2')
-
-#             # if password == confirmed_password:
-#             #     User.objects.create_user(username= username, password= password)
-#             user= form.save(commit= False)
-#             print("user", user)
-#             user.email= form.cleaned_data.get('email')
-#             user.set_password(form.cleaned_data.get("password1"))
-
-#             print(form.cleaned_data)
-#             user.is_active= False
-#             user.save()
-#             messages.success(request, "Activate your account. Link sent to your email.")
-#             return redirect('sign-in')
-#         else:
-#             print("Form is not valid.")
-            
-            
-#     return render(request, "registration/register.html", {"form":form})
 
 def sign_up(request):
     form = CustomRegisterForm(request.POST or None)
@@ -62,19 +39,6 @@ def sign_up(request):
 
     return render(request, "registration/register.html", {"form": form})
 
-
-def sign_in(request):
-    
-    form= LogInForm()
-
-    if request.method== "POST":
-        form= LogInForm(data= request.POST)
-        if form.is_valid():
-            user= form.get_user()
-            login(request, user)
-            return redirect('home')
-   
-    return render(request, "registration/login.html", {"form":form})
 
 
 class CustomLoginView(LoginView):
@@ -140,24 +104,33 @@ def assign_role(request, user_id):
     return render(request, "admin/assign_role.html", {"form":form})
 
 
-@user_passes_test(is_admin, login_url='no-permission')
-def create_group(request):
-    form= CreateGroupForm()
-    if request.method == "POST":
-        form= CreateGroupForm(request.POST)
 
-        if form.is_valid():
-            group = form.save()
-            messages.success(request, f"{group.name} has benn created successfully")
-            return redirect("create-group")
-    return render(request, "admin/create_group.html", {"form": form})
-    
-    
-def group_list(request):
-    groups= Group.objects.prefetch_related('permissions').all()
+add_group_decorators= [user_passes_test(is_admin, login_url='no-permission')]
+@method_decorator(add_group_decorators, name='dispatch') 
+class CreateGroup(FormView):
+    template_name= "admin/create_group.html"
+    form_class= CreateGroupForm
+    success_url= 'create-group'
 
-    return render(request, "admin/group_list.html", {"groups": groups})
+    def form_valid(self, form):
+        group= form.save()
+        messages.success(self.request, f"{group.name} has benn created successfully")
+        return super().form_valid(form)
+
     
+
+class GroupList(ListView):
+    model= Group
+    context_object_name= 'groups'
+    template_name= "admin/group_list.html"
+
+    def get_queryset(self):
+        queryset= Group.objects.prefetch_related('permissions').all()
+        return queryset
+    
+
+
+
 class ProfileView(TemplateView):
     template_name= 'accounts/profile.html'
 
@@ -206,34 +179,7 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     def form_valid(self, form):
         messages.success(self.request, "Password reset successfully!")
         return super().form_valid(form)
-"""
-class EditProfileView(UpdateView):
-    model= User
-    form_class= EditProfileForm
-    template_name= 'accounts/update_profile.html'
-    context_object_name= "form"
 
-    def get_object(self):
-        return self.request.user
-    
-    def get_form_kwargs(self):
-        kwargs= super().get_form_kwargs()
-        kwargs['userprofile']= UserProfile.objects.get(user= self.request.user)
-        return kwargs
-    
-    def get_context_data(self, **kwargs):
-        context= super().get_context_data(**kwargs)
-        user_profile= UserProfile.objects.get(user= self.request.user)
-
-        context['form']= self.form_class(instance= self.object, userprofile= user_profile)
-
-        return context
-    
-    def form_valid(self, form):
-        form.save(commit= True)
-        return redirect('profile')
-
-"""
 class EditProfileView(UpdateView):
     model= User
     form_class= EditProfileForm

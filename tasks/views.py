@@ -12,8 +12,8 @@ from django.views import View
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic.base import ContextMixin
-from django.views.generic import ListView, DetailView, UpdateView
-
+from django.views.generic import ListView, DetailView, UpdateView, DeleteView
+from django.urls import reverse_lazy
 
 
 
@@ -29,13 +29,7 @@ def is_employee(user):
 
 @user_passes_test(is_manager, login_url='no-permission')
 def manager_dashboard(request):
-    
-    # Getting task count
-    # total_task= tasks.count()
-    # completed_task= Task.objects.filter(status= "COMPLETED").count()
-    # in_progress_task= Task.objects.filter(status= "IN_PROGRESS").count()
-    # pending_task= Task.objects.filter(status= "PENDING").count()
-    
+   
     counts= Task.objects.aggregate(
         total_task= Count('id'),
         completed_task= Count('id', filter=Q(status= "COMPLETED")),
@@ -66,52 +60,8 @@ def employee_dashboard(request):
     return render(request, "dashboard/user-dashboard.html")
 
 
-@login_required
-@permission_required("tasks.add_task", login_url='no-permission')
-def create_task(request):
-    employee= User.objects.all( )
-    task_form= TaskModelForm() # for 'GET'
-    task_detail_form= TaskDetailModelForm()
-
-    
-    if request.method== "POST":
-        task_form= TaskModelForm(request.POST)
-        task_detail_form= TaskDetailModelForm(request.POST, request.FILES)
-        
-        if task_form.is_valid() and task_detail_form.is_valid():
-
-            """     or Model Form Data    """
-            # print(form)
-            task= task_form.save()
-            task_detail= task_detail_form.save(commit=False)
-            task_detail.task= task
-            task_detail.save()
-
-            messages.success(request, "Task added Successfully")
-            return redirect("create-task")
-            
-            '''   For Django Form Data   '''
-            # data= form.cleaned_data
-            # title= data.get('title')
-            # description= data.get('description')
-            # due_date= data.get('due_date')
-            # assigned_to= data.get('assigned_to')
-
-            # task= Task.objects.create(title=title, description=description, due_date= due_date)
-             
-            # #  assigned employee to task
-            # for emp_id in assigned_to:
-            #     employee= Employee.objects.get(id=emp_id)
-            #     task.assigned_to.add(employee)
-
-            # return HttpResponse("Task added Successfully!!!")
-            
-
-    context= {"task_form": task_form, "task_detail_form": task_detail_form}
-    return render(request, "task_form.html", context)
 
 create_task_decorators= [login_required, permission_required("tasks.add_task", login_url='no-permission')]
-
 
 class CreateTask(ContextMixin, LoginRequiredMixin, PermissionRequiredMixin, View):
     template_name= "task_form.html"
@@ -120,6 +70,7 @@ class CreateTask(ContextMixin, LoginRequiredMixin, PermissionRequiredMixin, View
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        print("get_context: ", context)
         context["task_form"] = kwargs.get("task_form", TaskModelForm())
         context["task_detail_form"]= kwargs.get("task_detail_form", TaskDetailModelForm())
         return context
@@ -129,7 +80,7 @@ class CreateTask(ContextMixin, LoginRequiredMixin, PermissionRequiredMixin, View
     def get(self, request, *args, **kwargs):
        
         
-        # context= {"task_form": task_form, "task_detail_form": task_detail_form}
+        
         context= self.get_context_data()
         return render(request, self.template_name, context)
 
@@ -150,36 +101,10 @@ class CreateTask(ContextMixin, LoginRequiredMixin, PermissionRequiredMixin, View
             context= self.get_context_data(task_form= task_form, task_detail_form= task_detail_form)
             return render(request, self.template_name, context)
 
-@login_required
-@permission_required("tasks.change_task", login_url='no-permission')
-def update_task(request, id):
-    task= Task.objects.get(id= id) 
-    employee= User.objects.all()
-    task_form= TaskModelForm(instance= task) # for 'GET'
-    if task.details:
-        task_detail_form= TaskDetailModelForm(instance= task.details)
+  
 
-    
-    if request.method== "POST":
-        task_form= TaskModelForm(request.POST, instance= task)
-        task_detail_form= TaskDetailModelForm(request.POST, request.FILES, instance= task.details)
-        
-        if task_form.is_valid() and task_detail_form.is_valid():
 
-            """    For Model Form Data    """
-            
-            task= task_form.save()
-            task_detail= task_detail_form.save(commit=False)
-            task_detail.task= task
-            task_detail.save()
 
-            messages.success(request, "Task updated Successfully")
-            return redirect("update-task", id)
-            
-           
-
-    context= {"task_form": task_form, "task_detail_form": task_detail_form}
-    return render(request, "task_form.html", context)
 
 
 class UpdatTask(UpdateView):
@@ -222,31 +147,7 @@ class UpdatTask(UpdateView):
 @login_required
 @permission_required("tasks.view_task", login_url='no-permission')
 def view_task(request):
-    # tasks= TaskDetail.objects.exclude(priority= 'L')
-    # tasks= Task.objects.filter(due_date= date.today())
-    # tasks= Task.objects.filter(title__icontains= 'c', status= 'PENDING')
-    # tasks= Task.objects.filter(Q(status= 'PENDING') | Q(status= 'IN_PROGRESS'))
-    # tasks= Task.objects.all()
-
-    # ||||--------  select_related(foreign_key, OneToOneField)  --------|||||
-
-    # tasks= Task.objects.select_related('details').all()
-    # tasks= Task.objects.select_related('project').all()
-    # tasks= TaskDetail.objects.select_related('task').all()
-
-
-    # ||||--------  prefetch_related(reverse_foreign_key, ManyToMany)  --------|||||
-
-    # tasks= Task.objects.prefetch_related('task_set').all()
-    # tasks= Project.objects.prefetch_related('task_set').all()
-    # tasks= Task.objects.prefetch_related('assigned_to').all()
-
-        
-    # Aggregation
-
-    # task_count= Task.objects.aggregate(total= Count('id'))
-
-    # Annotate
+    
 
     projects= Project.objects.annotate(total_task= Count("task")).order_by('total_task')
     
@@ -267,38 +168,21 @@ class ViewProject(ListView):
     
 
 
-@login_required
-@permission_required("tasks.delete_task", login_url='no-permission')
-def delete_task(request, id):
-    if request.method == 'POST':
-        task= Task.objects.get(id= id)
-        task.delete()
-        messages.success(request, "Task Deleted Successfully!")
-        return redirect('manager-dashboard')
-    else:
-        messages.error(request, "Something Went wrong")
-        return redirect('manager-dashboard')
+delete_event_decorator=[login_required, permission_required('tasks.delete_task', login_url='no-permission')]
+@method_decorator(delete_event_decorator, name='dispatch')
+class DeleteEvent(DeleteView):
+    model= Task
+    pk_url_kwarg= 'id'
+    success_url = reverse_lazy("manager-dashboard")
+
+    def post(self, request, *args, **kwargs):
+        self.object= self.get_object()
+        self.object.delete()
+
+        messages.success(request, "Event Deleted Successfully !!!")
+        return redirect("manager-dashboard")
 
 
-@login_required
-@permission_required("tasks.view_task", login_url='no-permission')
-def task_details(request, task_id):
-    task= Task.objects.get(id= task_id)
-    status_choices= Task.STATUS_CHOICES
-    if request.method == "POST":
-        select_status= request.POST.get('task_status')
-        task.status= select_status
-        task.save()
-
-        return redirect("task-details", task_id)
-
-    
-    context= {
-        "task": task,
-        "status_choices": status_choices
-    }
-
-    return render(request, 'task_details.html', context)
 
 task_details_decorators= [login_required, permission_required("tasks.view_task", login_url='no-permission')]
 @method_decorator(decorator=task_details_decorators, name="dispatch")
